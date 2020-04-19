@@ -1,0 +1,69 @@
+{
+  "_from": "@actualwave/multibyte-stream",
+  "_id": "@actualwave/multibyte-stream@0.0.1",
+  "_inBundle": false,
+  "_integrity": "sha512-5789ro723r98PaPfCpu7gVRPNYhDtVQRIs8itN0wvNKLinISCqb0855f7HdRxTWMnDOMveK0FfOqjpocgWdq6g==",
+  "_location": "/@actualwave/multibyte-stream",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "@actualwave/multibyte-stream",
+    "name": "@actualwave/multibyte-stream",
+    "escapedName": "@actualwave%2fmultibyte-stream",
+    "scope": "@actualwave",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/@actualwave/multibyte-stream/-/multibyte-stream-0.0.1.tgz",
+  "_shasum": "3bdb93913985a3bdfe0bad96bdcf332deb7445da",
+  "_spec": "@actualwave/multibyte-stream",
+  "_where": "/Users/oleg_galaburda/Documents/www/my/bitanimation",
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/burdiuz/js-multibyte-stream/issues"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "R/W data in bits, this allows to comapct data and store multiple values in each byte.",
+  "devDependencies": {
+    "@babel/preset-env": "^7.9.5",
+    "@babel/preset-typescript": "^7.9.0",
+    "@rollup/plugin-typescript": "^4.0.0",
+    "@types/jest": "^25.2.1",
+    "jest": "^25.3.0",
+    "tslib": "^1.11.1",
+    "typescript": "^3.8.3"
+  },
+  "homepage": "https://github.com/burdiuz/js-multibyte-stream#readme",
+  "keywords": [
+    "js",
+    "javascript",
+    "byte",
+    "bit",
+    "read",
+    "write",
+    "stream",
+    "binary",
+    "multibyte"
+  ],
+  "license": "ISC",
+  "main": "dist/multibyte-stream.umd.js",
+  "module": "index.js",
+  "name": "@actualwave/multibyte-stream",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/burdiuz/js-multibyte-stream.git"
+  },
+  "scripts": {
+    "build": "rollup -c rollup.config.js",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "version": "0.0.1"
+}

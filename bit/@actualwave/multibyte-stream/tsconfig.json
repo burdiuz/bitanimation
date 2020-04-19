@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "types": ["jest"],
+    "target": "ES2020",
+    "module": "ES2020"
+  }
+}
