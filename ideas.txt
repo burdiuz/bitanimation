@@ -1,0 +1,6 @@
+each frame editor should have arrows in one corner to shift whole frame content in one direction
+placeholder for creating new frame should have three buttons to clone previous, create enpty and create filled
+between frames there should be placeholers to create a new frame between, from previous frame, from next frame, filled or blank
+there should be color selector to select colors for background and foreground
+export to gif animation should have two options -- pixelated(bit size is 1 pixel) and normal
+https://github.com/jnordberg/gif.js
