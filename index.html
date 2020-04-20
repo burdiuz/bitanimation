@@ -81,31 +81,118 @@
       document.querySelector('page-layout').setAttribute('type', type);
     };
 
-    const frames = new BitFrames(() => {
-      frames.insertNewFirst();
-      frames.insertNewFirst();
-      frames.insertNewFirst();
-      frames.insertNewFirst();
-      frames.insertNewFirst();
+    const debounce = (callback) => {
+      let promise = null;
 
-      document.querySelector('bit-editor').frames = frames;
+      return (...args) => {
+        if (promise) {
+          return;
+        }
+
+        promise = Promise.resolve().then(() => {
+          promise = null;
+
+          callback(...args);
+        });
+      };
+    };
+
+    let currentStateStr = '';
+    const stateSchema = (() => {
+      const {
+        Schema,
+        types: { ObjectType, ArrayType, IntType },
+      } = MultibyteStream;
+
+      return new Schema(
+        ObjectType.getInstance({
+          // force version to be first value in stream
+          $version: new IntType(false, 4),
+          width: new IntType(false, 6),
+          height: new IntType(false, 6),
+          color: new IntType(false),
+          backgroundColor: new IntType(false),
+          speed: new IntType(false, 10),
+          sourceList: new ArrayType(
+            new ArrayType(new ArrayType(new IntType(false, 1)))
+          ),
+        })
+      );
+    })();
+
+    const saveStateToURL = () => {
+      const frameImageSources = frames.getRenderedAll();
+      const [color, backgroundColor] = frames.getColors();
+
+      const state = {
+        $version: 0,
+        width: frames.width,
+        height: frames.height,
+        color,
+        backgroundColor,
+        speed: 100,
+        sourceList: frames.getAll(),
+      };
+
+      const stateStr = stateSchema.saveBase64From(state);
+
+      if (stateStr === currentStateStr) {
+        return;
+      }
+
+      currentStateStr = stateStr;
+
+      window.history.pushState(
+        JSON.stringify(state),
+        '',
+        `${window.location.pathname}?a=${encodeURIComponent(currentStateStr)}`
+      );
+    };
+
+    const loadStateFromURL = () => {
+      const state = new URLSearchParams(window.location.search).get('a');
+
+      if (!state || state === currentStateStr) {
+        return;
+      }
+
+      currentStateStr = state;
+
+      const {
+        width,
+        height,
+        color,
+        backgroundColor,
+        speed,
+        sourceList,
+      } = stateSchema.loadBase64To(state);
+
+      frames.setFrames([]);
+      frames.setSize(width, height);
+      frames.setColors(color, backgroundColor);
+      frames.setFrames(sourceList);
+    };
+
+    const renderFrames = debounce(() => {
+      saveStateToURL();
+      //document.queryselector('bit-player');
     });
 
-    (async () => {
-      /*
-      document
-        .querySelector('bit-frame-editor')
-        .addEventListener(
-          'bitSwitch',
-          async ({ target, detail: { index, column, row } }) => {
-            FRAMES[index][row][column] = Number(!FRAMES[index][row][column]);
+    window.addEventListener('popstate', () => {
+      loadStateFromURL();
 
-            const source = renderer.drawToImageSrc(FRAMES[index]);
+      document.querySelector('bit-editor').validateChildren();
+    });
 
-            target.src = source;
-          }
-        );
-        */
-    })();
+    const frames = new BitFrames(
+      () => {
+        frames.insertNewFirst();
+        loadStateFromURL();
+
+        document.querySelector('bit-editor').frames = frames;
+      },
+      renderFrames,
+      renderFrames
+    );
   </script>
 </html>

@@ -29,6 +29,11 @@ export class BitRenderer {
     await Promise.resolve();
   }
 
+  setColors(foreground, background = '#ffffff') {
+    this.color = foreground;
+    this.backgroundColor = background;
+  }
+
   clear() {
     const { context } = this;
 

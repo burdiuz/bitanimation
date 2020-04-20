@@ -67,7 +67,7 @@ frame-tools {
         const toolsNode = children[index];
         const frameNode = toolsNode.querySelector('bit-frame-editor');
 
-        if (this._frames.length > index) {
+        if (this._frames.length() > index) {
           this.configureTools(toolsNode, index);
           this.configureFrame(frameNode, index);
         } else {
@@ -134,8 +134,17 @@ frame-tools {
 
   configureTools(toolsNode, index) {
     toolsNode.setAttribute('index', index);
-    toolsNode.setAttribute('isFirst', index === 0);
-    toolsNode.setAttribute('isLast', index === this._frames.length() - 1);
+    if (index === 0) {
+      toolsNode.setAttribute('is-first', true);
+    } else {
+      toolsNode.removeAttribute('is-first');
+    }
+
+    if (index === this._frames.length() - 1) {
+      toolsNode.setAttribute('is-last', true);
+    } else {
+      toolsNode.removeAttribute('is-last');
+    }
   }
 
   async connectedCallback() {
@@ -166,15 +175,35 @@ frame-tools {
   bitSwitchHandle = (event) => {
     event.target.src = this.frames.drawBitByEvent(event);
   };
+
   bitSlideHandle = (event) => {
     event.target.src = this.frames.slideByEvent(event);
   };
 
-  insertEmptyBeforeHandle = ({ detail: { index } }) => {};
-  insertEmptyAfterHandle = ({ detail: { index } }) => {};
-  copyBeforeHandle = ({ detail: { index } }) => {};
-  copyAfterHandle = ({ detail: { index } }) => {};
-  removeHandle = ({ detail: { index } }) => {};
+  insertEmptyBeforeHandle = ({ detail: { index } }) => {
+    this.frames.insertNewAt(index);
+    this.validateChildren();
+  };
+
+  insertEmptyAfterHandle = ({ detail: { index } }) => {
+    this.frames.insertNewAt(index + 1);
+    this.validateChildren();
+  };
+
+  copyBeforeHandle = ({ detail: { index } }) => {
+    this.frames.copyAndPrepend(index);
+    this.validateChildren();
+  };
+
+  copyAfterHandle = ({ detail: { index } }) => {
+    this.frames.copyAndAppend(index);
+    this.validateChildren();
+  };
+
+  removeHandle = ({ detail: { index } }) => {
+    this.frames.removeAt(index);
+    this.validateChildren();
+  };
 }
 
 window.customElements.define('bit-editor', BitEditorElement);
