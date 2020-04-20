@@ -3,8 +3,15 @@
   <head>
     <title>Bit Animation</title>
     <script src="./libs/multibyte-stream.umd.js"></script>
+
+    <script src="./frames.js"></script>
+
     <script src="./bit/frame.js"></script>
     <script src="./bit/frame-editor.js"></script>
+    <script src="./bit/frame-tools.js"></script>
+    <script src="./bit/editor.js"></script>
+    <script src="./tool-button.js"></script>
+    <script src="./page-layout.js"></script>
     <style>
       html,
       body {
@@ -19,47 +26,73 @@
         height: 200px;
         margin: 50px;
       }
+
+      .frame-tools {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
     </style>
   </head>
   <body>
-    <div class="frame">
-      <bit-frame-editor width="10" height="10" index="0" src=""></bit-frame-editor>
-    </div>
+    <page-layout type="normal">
+      <tool-button
+        slot="tools"
+        size="30"
+        icon="./icons/edit_timeline_icon.png"
+        title="Copy Animation into new Editor"
+      ></tool-button>
+      <tool-button
+        slot="tools"
+        size="30"
+        icon="./icons/export_gif_icon.png"
+        title="Export Animation as GIF file"
+      ></tool-button>
+      <div slot="tools" style="flex: 1;"></div>
+      <tool-button
+        slot="tools"
+        size="30"
+        icon="./icons/editor_collapse_icon.png"
+        title="Collapse Editor to give more space for Player"
+        onclick="setLayoutType('collapsed')"
+      ></tool-button>
+      <tool-button
+        slot="tools"
+        size="30"
+        icon="./icons/editor_normal_icon.png"
+        title="Make Editor and Player size even"
+        onclick="setLayoutType('normal')"
+      ></tool-button>
+      <tool-button
+        slot="tools"
+        size="30"
+        icon="./icons/editor_expand_icon.png"
+        title="Expand Editor to give more space for it"
+        onclick="setLayoutType('expanded')"
+      ></tool-button>
+      <bit-player slot="player">Bit Player</bit-player>
+      <bit-editor slot="editor"></bit-editor>
+    </page-layout>
   </body>
   <script>
-    const FRAMES = [];
-
-    const generateEmptyFrame = (width, height) => {
-      const row = new Array(width);
-      row.fill(0);
-
-      return new Array(height)
-        .fill(null)
-        .map((_, index) => (index ? [...row] : row));
+    const setLayoutType = (type) => {
+      document.querySelector('page-layout').setAttribute('type', type);
     };
 
-    const insertNewFrameAt = (frames, index, width, height) => {
-      const frame = generateEmptyFrame(width, height);
+    const frames = new BitFrames(() => {
+      frames.insertNewFirst();
+      frames.insertNewFirst();
+      frames.insertNewFirst();
+      frames.insertNewFirst();
+      frames.insertNewFirst();
 
-      frames.splice(index, 0, frame);
-    };
-
-    const insertNewFrame = (frames, width, height) =>
-      insertNewFrameAt(frames, frames.length - 1, width, height);
-
-    const copyFrameAt = (frames, index) => frames.map((row) => [...row]);
+      document.querySelector('bit-editor').frames = frames;
+    });
 
     (async () => {
-      const { BitRenderer } = await import('./renderer.js');
-
-      insertNewFrame(FRAMES, 10, 10);
-      insertNewFrame(FRAMES, 10, 10);
-      insertNewFrame(FRAMES, 10, 10);
-
-      const renderer = new BitRenderer();
-
-      await renderer.setSize(10, 10);
-
+      /*
       document
         .querySelector('bit-frame-editor')
         .addEventListener(
@@ -72,6 +105,7 @@
             target.src = source;
           }
         );
+        */
     })();
   </script>
 </html>

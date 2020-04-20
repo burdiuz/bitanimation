@@ -24,6 +24,7 @@ export class BitRenderer {
 
     this.canvas.width = width * this.bitWidth;
     this.canvas.height = height * this.bitHeight;
+    console.log(this.width, this.height);
 
     await Promise.resolve();
   }

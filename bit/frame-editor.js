@@ -1,7 +1,34 @@
-const BIT_SWITCH_EVENT = 'bitSwitch';
+(() => {
+  const BIT_SWITCH_EVENT = 'bitSwitch';
 
-window.customElements.define(
-  'bit-frame-editor',
+  const STYLE = `
+  bit-frame, .grid {
+    width: 100%;
+    height: 100%;
+  }
+
+  .grid {
+  display: grid;
+  border: solid #aaaaaa 1px;
+}
+
+.hover, .column, .row {
+  pointer-events: none;
+}
+
+.hover {
+  display: none;
+  border: dashed #0f0 3px;
+}
+
+.column {
+  border-right: solid #aaaaaa 1px;
+}
+
+.row {
+  border-bottom: solid #aaaaaa 1px;
+}`;
+
   class BitFrameEditorElement extends HTMLElement {
     static get observedAttributes() {
       return ['src', 'width', 'height', 'index'];
@@ -14,35 +41,13 @@ window.customElements.define(
       this._height = 1;
       this.root = this.attachShadow({ mode: 'closed' });
       this.root.innerHTML = `<style>
-      .grid {
-        width: 100%;
-        height: 100%;
-        display: grid;
-        border: solid #aaaaaa 1px;
-      }
-
-      .hover, .column, .row {
-        pointer-events: none;
-      }
-
-      .hover {
-        display: none;
-        border: dashed #0f0 3px;
-      }
-
-      .column {
-        border-right: solid #aaaaaa 1px;
-      }
-
-      .row {
-        border-bottom: solid #aaaaaa 1px;
-      }
-      </style>
-      <bit-frame>
-        <div class="grid">
-          <div class="hover"></div>
-        </div>
-      </bit-frame>`;
+    ${STYLE}
+    </style>
+    <bit-frame>
+      <div class="grid">
+        <div class="hover"></div>
+      </div>
+    </bit-frame>`;
     }
 
     get frameElement() {
@@ -173,4 +178,6 @@ window.customElements.define(
       );
     };
   }
-);
+
+  window.customElements.define('bit-frame-editor', BitFrameEditorElement);
+})();
