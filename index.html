@@ -10,6 +10,7 @@
     <script src="./bit/frame-editor.js"></script>
     <script src="./bit/frame-tools.js"></script>
     <script src="./bit/editor.js"></script>
+    <script src="./bit/player.js"></script>
     <script src="./tool-button.js"></script>
     <script src="./page-layout.js"></script>
     <style>
@@ -72,7 +73,7 @@
         title="Expand Editor to give more space for it"
         onclick="setLayoutType('expanded')"
       ></tool-button>
-      <bit-player slot="player">Bit Player</bit-player>
+      <bit-player slot="player"></bit-player>
       <bit-editor slot="editor"></bit-editor>
     </page-layout>
   </body>
@@ -175,7 +176,8 @@
 
     const renderFrames = debounce(() => {
       saveStateToURL();
-      //document.queryselector('bit-player');
+
+      document.querySelector('bit-player').sources = frames.getRenderedAll();
     });
 
     window.addEventListener('popstate', () => {
