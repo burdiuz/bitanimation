@@ -46,8 +46,12 @@
       this.animate();
     }
 
+    get images() {
+      return this.root.querySelectorAll('img');
+    }
+
     validateImages() {
-      const images = this.root.querySelectorAll('img');
+      const { images } = this;
 
       this._sources.forEach((src, index) => {
         let image = images[index];

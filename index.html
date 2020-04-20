@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <title>Bit Animation</title>
+    <script src="./libs/gif.js" async></script>
     <script src="./libs/multibyte-stream.umd.js"></script>
 
     <script src="./frames.js"></script>
@@ -44,12 +45,14 @@
         size="30"
         icon="./icons/edit_timeline_icon.png"
         title="Copy Animation into new Editor"
+        onclick="window.open(window.location.href, '_blank')"
       ></tool-button>
       <tool-button
         slot="tools"
         size="30"
         icon="./icons/export_gif_icon.png"
         title="Export Animation as GIF file"
+        onclick="generateGIF()"
       ></tool-button>
       <div slot="tools" style="flex: 1;"></div>
       <tool-button
@@ -80,6 +83,24 @@
   <script>
     const setLayoutType = (type) => {
       document.querySelector('page-layout').setAttribute('type', type);
+    };
+
+    const generateGIF = () => {
+      const gif = new GIF({
+        workers: 2,
+        quality: 10,
+        workerScript: './libs/gif.worker.js',
+      });
+
+      document.querySelector('bit-player').images.forEach((image) => {
+        gif.addFrame(image, { delay: 100 });
+      });
+
+      gif.on('finished', (blob) => {
+        window.open(URL.createObjectURL(blob));
+      });
+
+      gif.render();
     };
 
     const debounce = (callback) => {
