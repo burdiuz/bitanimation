@@ -75,8 +75,8 @@
       }
       const { height } = this._boundingRect;
 
-      this.style.width = `${(height / this._aspectRatio) | 0}px`;
-      this.style.flexBasis = `${(height / this._aspectRatio) | 0}px`;
+      this.style.width = `${(height * this._aspectRatio) | 0}px`;
+      this.style.flexBasis = `${(height * this._aspectRatio) | 0}px`;
     }
 
     attributeChangedCallback(name, oldValue, newValue) {

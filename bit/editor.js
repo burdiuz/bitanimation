@@ -26,7 +26,7 @@ class BitEditorElement extends HTMLElement {
 }
 
 .spacer {
-  flex: 0 0 150px;
+  flex: 0 0 100vw;
 }
 
 frame-tools {

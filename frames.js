@@ -64,17 +64,20 @@ class BitFrames {
     });
   }
 
-  setColors(color, backgroundColor = undefined) {
-    this.renderer.setColors(colorToHTML(color), colorToHTML(backgroundColor));
+  setHTMLColors(color, backgroundColor = undefined) {
+    this.renderer.setColors(color, backgroundColor);
 
     this.frames.forEach((_, index) => this.render(index));
   }
 
-  setFrames(frames = []) {
-    this.frames = frames;
-    this.images.length = frames.length;
+  getHTMLColors() {
+    const { color, backgroundColor } = this.renderer;
 
-    this.frames.forEach((_, index) => this.render(index));
+    return [color, backgroundColor];
+  }
+
+  setColors(color, backgroundColor) {
+    this.setHTMLColors(colorToHTML(color), colorToHTML(backgroundColor));
   }
 
   getColors() {
@@ -84,6 +87,13 @@ class BitFrames {
       Number.parseInt(`0x${color.substr(1)}`, 16),
       Number.parseInt(`0x${backgroundColor.substr(1)}`, 16),
     ];
+  }
+
+  setFrames(frames = []) {
+    this.frames = frames;
+    this.images.length = frames.length;
+
+    this.frames.forEach((_, index) => this.render(index));
   }
 
   insertNewAt(index) {

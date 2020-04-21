@@ -10,9 +10,12 @@
     <script src="./bit/frame.js"></script>
     <script src="./bit/frame-editor.js"></script>
     <script src="./bit/frame-tools.js"></script>
+    <script src="./bit/color-select.js"></script>
     <script src="./bit/editor.js"></script>
     <script src="./bit/player.js"></script>
+    <script src="./bit-modal.js"></script>
     <script src="./tool-button.js"></script>
+    <script src="./text-button.js"></script>
     <script src="./page-layout.js"></script>
     <style>
       html,
@@ -21,6 +24,8 @@
         height: 100%;
         margin: 0;
         padding: 0;
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 14px;
       }
 
       .frame {
@@ -37,6 +42,67 @@
         padding: 20px;
       }
     </style>
+    <template id="modal-colors-tpl">
+      <h3 style="padding: 0; margin: 0px;" slot="header">
+        Change Image Colors
+      </h3>
+      <span slot="content">
+        <label>Foreground</label>
+        <bit-color-select
+          class="color-select"
+          options="#000000, #a2238e, #ea1d22, #ea413c, #f58225, #f8a71a, #fdf001, #70bf42, #00a45d, #00afac, #0367b2, #1f419a, #592f93"
+        ></bit-color-select>
+        <br />
+        <label>Background</label>
+        <bit-color-select
+          class="bgcolor-select"
+          options="#ffffff, #dfcee1, #fbd2cc, #fad0c0, #f8dcc7, #fee2cc, #fdf9ca, #e0eed7, #bfdecf, #bce5e9, #acc5e4, #8993c6, #b5aed0"
+        ></bit-color-select>
+      </span>
+      <button is="text-button" class="save-button" slot="footer">Save</button>
+      <button is="text-button" class="cancel-button" slot="footer">
+        Cancel
+      </button>
+    </template>
+    <template id="modal-speed-tpl">
+      <h3 style="padding: 0; margin: 0px;" slot="header">
+        Change Animation Speed
+      </h3>
+      <div
+        slot="content"
+        style="display: flex; justify-content: space-between;"
+      >
+        <span>Slow</span>
+        <span>Fast</span>
+      </div>
+      <input type="range" min="0" max="950" slot="content" />
+      <button is="text-button" class="close-button" slot="footer">Close</button>
+    </template>
+    <template id="modal-size-tpl">
+      <h3 style="padding: 0; margin: 0px;" slot="header">Change Image Size</h3>
+      <label slot="content">Width</label>
+      <div
+        slot="content"
+        class="width"
+        style="display: flex; align-items: center; margin-bottom: 10px;"
+      >
+        <input type="range" min="2" max="32" style="flex: 1;" />
+        <div style="flex: 0 0 40px; text-align: right; font-size: 1.5em;"></div>
+      </div>
+      <label slot="content">Height</label>
+      <div
+        slot="content"
+        class="height"
+        style="display: flex; align-items: center;"
+      >
+        <input type="range" min="2" max="32" style="flex: 1;" />
+        <div style="flex: 0 0 40px; text-align: right; font-size: 1.5em;"></div>
+      </div>
+      <button is="text-button" class="save-button" slot="footer">Save</button>
+      <button is="text-button" class="cancel-button" slot="footer">
+        Cancel
+      </button>
+    </template>
   </head>
   <body>
     <page-layout type="normal">
@@ -50,9 +116,37 @@
       <tool-button
         slot="tools"
         size="30"
+        icon="./icons/edit_timeline_icon.png"
+        title="Open Animation in new Player"
+        onclick="window.open(window.location.href, '_blank')"
+      ></tool-button>
+      <tool-button
+        slot="tools"
+        size="30"
         icon="./icons/export_gif_icon.png"
         title="Export Animation as GIF file"
         onclick="generateGIF()"
+      ></tool-button>
+      <tool-button
+        slot="tools"
+        size="30"
+        icon="./icons/edit_timeline_icon.png"
+        title="Change Animation Colors"
+        onclick="openColorsModal()"
+      ></tool-button>
+      <tool-button
+        slot="tools"
+        size="30"
+        icon="./icons/edit_timeline_icon.png"
+        title="Change Animation Speed"
+        onclick="openSpeedModal()"
+      ></tool-button>
+      <tool-button
+        slot="tools"
+        size="30"
+        icon="./icons/edit_timeline_icon.png"
+        title="Change Animation Size"
+        onclick="openSizeModal()"
       ></tool-button>
       <div slot="tools" style="flex: 1;"></div>
       <tool-button
@@ -81,11 +175,47 @@
     </page-layout>
   </body>
   <script>
+    const nextTick = (callback) => {
+      let promise = null;
+      let lastArgs;
+
+      return (...args) => {
+        lastArgs = args;
+
+        if (promise) {
+          return;
+        }
+
+        promise = Promise.resolve().then(() => {
+          promise = null;
+
+          callback(...lastArgs);
+        });
+      };
+    };
+
+    const debounce = (callback, timeout = 0) => {
+      let promise = null;
+      let timeoutId = 0;
+
+      return (...args) => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+
+        timeoutId = setTimeout(() => {
+          promise = null;
+
+          callback(...args);
+        }, timeout);
+      };
+    };
     const setLayoutType = (type) => {
       document.querySelector('page-layout').setAttribute('type', type);
     };
 
     const generateGIF = () => {
+      const { speed: delay } = document.querySelector('bit-player');
       const gif = new GIF({
         workers: 2,
         quality: 10,
@@ -93,7 +223,7 @@
       });
 
       document.querySelector('bit-player').images.forEach((image) => {
-        gif.addFrame(image, { delay: 100 });
+        gif.addFrame(image, { delay });
       });
 
       gif.on('finished', (blob) => {
@@ -103,20 +233,114 @@
       gif.render();
     };
 
-    const debounce = (callback) => {
-      let promise = null;
+    const openColorsModal = () => {
+      let [color, backgroundColor] = frames.getHTMLColors();
+      const modal = document.createElement('bit-modal');
+      const content = document.head
+        .querySelector('#modal-colors-tpl')
+        .content.cloneNode(true);
 
-      return (...args) => {
-        if (promise) {
-          return;
-        }
+      const select = content.querySelector('.color-select');
+      select.setAttribute('value', color);
+      select.addEventListener('change', ({ detail: { value } }) => {
+        color = value;
+      });
 
-        promise = Promise.resolve().then(() => {
-          promise = null;
+      const bgselect = content.querySelector('.bgcolor-select');
+      bgselect.setAttribute('value', backgroundColor);
+      bgselect.addEventListener('change', ({ detail: { value } }) => {
+        backgroundColor = value;
+      });
 
-          callback(...args);
-        });
+      content.querySelector('.save-button').addEventListener('click', () => {
+        frames.setHTMLColors(color, backgroundColor);
+        document.querySelector('bit-editor').validateChildren();
+        modal.close();
+      });
+
+      content
+        .querySelector('.cancel-button')
+        .addEventListener('click', () => modal.close());
+
+      modal.appendChild(content);
+
+      document.body.appendChild(modal);
+    };
+
+    const openSpeedModal = () => {
+      const player = document.querySelector('bit-player');
+      const modal = document.createElement('bit-modal');
+      const content = document.head
+        .querySelector('#modal-speed-tpl')
+        .content.cloneNode(true);
+
+      document.querySelector('bit-player');
+
+      content
+        .querySelector('.close-button')
+        .addEventListener('click', () => modal.close());
+
+      const range = content.querySelector('input[type="range"]');
+      range.value = 1000 - player.speed;
+
+      range.addEventListener(
+        'change',
+        debounce(({ target: { value } }) => {
+          player.speed = 1000 - value;
+          saveStateToURL();
+        }, 200)
+      );
+
+      modal.appendChild(content);
+
+      document.body.appendChild(modal);
+    };
+
+    const openSizeModal = () => {
+      let { width, height } = frames;
+
+      const modal = document.createElement('bit-modal');
+      const content = document.head
+        .querySelector('#modal-size-tpl')
+        .content.cloneNode(true);
+
+      const wslider = content.querySelector('.width > input');
+      const wlabel = content.querySelector('.width > div');
+      const changeWidth = ({ target: { value } }) => {
+        width = value;
+        wlabel.innerText = value;
       };
+
+      wslider.value = width;
+      wslider.addEventListener('input', changeWidth);
+      wslider.addEventListener('change', changeWidth);
+      changeWidth({ target: { value: width } });
+
+      const hslider = content.querySelector('.height > input');
+      const hlabel = content.querySelector('.height > div');
+      const changeHeight = ({ target: { value } }) => {
+        height = value;
+        hlabel.innerText = value;
+      };
+
+      hslider.value = height;
+      hslider.addEventListener('input', changeHeight);
+      hslider.addEventListener('change', changeHeight);
+      changeHeight({ target: { value: height } });
+
+      content.querySelector('.save-button').addEventListener('click', () => {
+        frames.setSize(width, height);
+        document.querySelector('bit-editor').validateChildren();
+        modal.close();
+      });
+
+      content
+        .querySelector('.cancel-button')
+        .addEventListener('click', () => modal.close());
+
+      modal.appendChild(content);
+
+      document.body.appendChild(modal);
     };
 
     let currentStateStr = '';
@@ -145,6 +369,7 @@
     const saveStateToURL = () => {
       const frameImageSources = frames.getRenderedAll();
       const [color, backgroundColor] = frames.getColors();
+      const speed = document.querySelector('bit-player').speed;
 
       const state = {
         $version: 0,
@@ -152,7 +377,7 @@
         height: frames.height,
         color,
         backgroundColor,
-        speed: 100,
+        speed,
         sourceList: frames.getAll(),
       };
 
@@ -165,7 +390,7 @@
       currentStateStr = stateStr;
 
       window.history.pushState(
-        JSON.stringify(state),
+        Date.now(),
         '',
         `${window.location.pathname}?a=${encodeURIComponent(currentStateStr)}`
       );
@@ -193,9 +418,10 @@
       frames.setSize(width, height);
       frames.setColors(color, backgroundColor);
       frames.setFrames(sourceList);
+      document.querySelector('bit-player').speed = speed;
     };
 
-    const renderFrames = debounce(() => {
+    const renderFrames = nextTick(() => {
       saveStateToURL();
 
       document.querySelector('bit-player').sources = frames.getRenderedAll();
