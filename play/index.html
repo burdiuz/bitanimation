@@ -79,7 +79,7 @@
     const navigateToEditor = () => {
       const state = new URLSearchParams(window.location.search).get('a');
 
-      window.location.href = `/?a=${encodeURIComponent(state)}`;
+      window.location.href = `../?a=${encodeURIComponent(state)}`;
     };
 
     let currentStateStr = '';
