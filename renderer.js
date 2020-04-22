@@ -1,5 +1,5 @@
-export const BIT_WIDTH = 10;
-export const BIT_HEIGHT = 10;
+export const BIT_WIDTH = 25;
+export const BIT_HEIGHT = 25;
 
 export class BitRenderer {
   constructor(bitWidth = BIT_WIDTH, bitHeight = BIT_HEIGHT) {
@@ -24,7 +24,6 @@ export class BitRenderer {
 
     this.canvas.width = width * this.bitWidth;
     this.canvas.height = height * this.bitHeight;
-    console.log(this.width, this.height);
 
     await Promise.resolve();
   }

@@ -36,6 +36,10 @@
   padding-top: 10px;
 }
 
+::slotted(button[slot="tools"]) {
+  margin-bottom: 10px;
+}
+
 ::slotted(bit-player) {
   grid-area: player;
 }

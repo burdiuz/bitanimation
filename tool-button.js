@@ -1,29 +1,32 @@
-window.customElements.define(
-  'tool-button',
-  class ToolButtonElement extends HTMLElement {
+(() => {
+  const STYLE = {
+    webkitAppearance: 'none',
+    backgroundSize: 'contain',
+    backgroundColor: 'transparent',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    border: 'solid #eeeeee 1px',
+    cursor: 'pointer',
+  };
+  class ToolButtonElement extends HTMLButtonElement {
     static get observedAttributes() {
       return ['size', 'icon'];
     }
 
-    constructor() {
-      super();
+    connectedCallback() {
+      Object.assign(this.style, STYLE);
 
-      this.root = this.attachShadow({ mode: 'closed' });
-      this.root.innerHTML = `<style>
-        :host {
-          background-size: contain;
-          background-position: center;
-          background-repeat: no-repeat;
-          border: solid #eeeeee 1px;
-          margin-bottom: 10px;
-          cursor: pointer;
-
-        }
-        :host(:hover) {
-          filter: brightness(0.75) contrast(150%);
-        }
-      </style>`;
+      this.addEventListener('mouseover', this.mouseOverHandle);
+      this.addEventListener('mouseout', this.mouseOutHandle);
     }
+
+    mouseOverHandle = () => {
+      this.style.filter = 'brightness(0.75) contrast(150%)';
+    };
+
+    mouseOutHandle = () => {
+      this.style.removeProperty('filter');
+    };
 
     attributeChangedCallback(name, _, value) {
       switch (name) {
@@ -40,4 +43,8 @@ window.customElements.define(
       }
     }
   }
-);
+
+  window.customElements.define('tool-button', ToolButtonElement, {
+    extends: 'button',
+  });
+})();

@@ -29,6 +29,11 @@
         align-items: center;
         justify-content: center;
       }
+      .tools-first > button,
+      .tools-between > button,
+      .tools-last > button {
+        margin-bottom: 10px;
+      }
 
       .tools-first,
       .tools-last {
@@ -43,55 +48,106 @@
       .none {
         display: none;
       }
+
+      .frame {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .frame-tools {
+        margin-top: 5px;
+        flex: 0 0 25px;
+        display: flex;
+        align-items: center;
+      }
+
+      .frame-tools > button:not(:first-child) {
+        margin-left: 10px;
+      }
     </style>
     <div class="tools-first none">
-      <tool-button
+      <button is="tool-button"
         id="first-empty"
         size="75"
         icon="./icons/create_new.png"
         title="Create empty Frame"
-      ></tool-button>
-      <tool-button
+      ></button>
+      <button is="tool-button"
         id="first-next"
         size="75"
         icon="./icons/copy_first_icon.png"
         title="Insert copy of previous Frame"
-      ></tool-button>
+      ></button>
     </div>
     <div class="tools-between">
-      <tool-button
+      <button is="tool-button"
         id="between-previous"
         size="45"
         icon="./icons/insert_previous_icon.png"
         title="Insert copy of previous Frame"
-      ></tool-button>
-      <tool-button
+      ></button>
+      <button is="tool-button"
         id="between-empty"
         size="45"
         icon="./icons/insert_empty_icon.png"
         title="Insert empty Frame"
-      ></tool-button>
-      <tool-button
+      ></button>
+      <button is="tool-button"
       id="between-next"
         size="45"
         icon="./icons/insert_next_icon.png"
         title="Insert copy of next Frame"
-      ></tool-button>
+      ></button>
     </div>
-    <slot></slot>
+    <div class="frame">
+      <slot></slot>
+      <div class="frame-tools">
+        <button is="tool-button"
+          id="remove"
+          size="25"
+          icon="./icons/frame_remove_icon.png"
+          title="Remove this Frame"
+          style="margin-right: auto;"
+        ></button>
+        <button is="tool-button"
+          id="shift-up"
+          size="25"
+          icon="./icons/frame_shiftup_icon.png"
+          title="Shift one Row Up"
+        ></button>
+        <button is="tool-button"
+          id="shift-down"
+          size="25"
+          icon="./icons/frame_shiftdown_icon.png"
+          title="Shift one Row Down"
+        ></button>
+        <button is="tool-button"
+          id="shift-left"
+          size="25"
+          icon="./icons/frame_shiftleft_icon.png"
+          title="Shift one Column Left"
+        ></button>
+        <button is="tool-button"
+          id="shift-right"
+          size="25"
+          icon="./icons/frame_shiftright_icon.png"
+          title="Shift one Column Right"
+        ></button>
+      </div>
+    </div>
     <div slot="editor" class="tools-last none">
-      <tool-button
+      <button is="tool-button"
       id="last-empty"
         size="75"
         icon="./icons/create_new.png"
         title="Add empty Frame"
-      ></tool-button>
-      <tool-button
+      ></button>
+      <button is="tool-button"
         id="last-previous"
         size="75"
         icon="./icons/copy_last_icon.png"
         title="Copy last Frame"
-      ></tool-button>
+      ></button>
     </div>
     `;
     }
@@ -118,6 +174,23 @@
       this.root
         .querySelector('#last-previous')
         .addEventListener('click', this.copyThisAfterHandler);
+
+        this.root
+          .querySelector('#remove')
+          .addEventListener('click', this.removeHandler);
+
+        this.root
+          .querySelector('#shift-up')
+          .addEventListener('click', this.shiftUpHandler);
+        this.root
+          .querySelector('#shift-down')
+          .addEventListener('click', this.shiftDownHandler);
+        this.root
+          .querySelector('#shift-left')
+          .addEventListener('click', this.shiftLeftHandler);
+        this.root
+          .querySelector('#shift-right')
+          .addEventListener('click', this.shiftRightHandler);
     }
 
     disconnectedCallback() {
@@ -142,6 +215,23 @@
       this.root
         .querySelector('#last-previous')
         .removeEventListener('click', this.copyThisAfterHandler);
+
+      this.root
+        .querySelector('#remove')
+        .removeEventListener('click', this.removeHandler);
+
+      this.root
+        .querySelector('#shift-up')
+        .removeEventListener('click', this.shiftUpHandler);
+      this.root
+        .querySelector('#shift-down')
+        .removeEventListener('click', this.shiftDownHandler);
+      this.root
+        .querySelector('#shift-left')
+        .removeEventListener('click', this.shiftLeftHandler);
+      this.root
+        .querySelector('#shift-right')
+        .removeEventListener('click', this.shiftRightHandler);
     }
 
     createEmptyBeforeHandler = () => {
@@ -178,6 +268,44 @@
       const { index } = this;
 
       this.dispatchEvent(new CustomEvent('copyAfter', { detail: { index } }));
+    };
+
+    removeHandler = () => {
+      const { index } = this;
+
+      this.dispatchEvent(new CustomEvent('remove', { detail: { index } }));
+    };
+
+    shiftUpHandler = () => {
+      const { index } = this;
+
+      this.dispatchEvent(
+        new CustomEvent('frameShift', { detail: { index, direction: 'up' } })
+      );
+    };
+
+    shiftDownHandler = () => {
+      const { index } = this;
+
+      this.dispatchEvent(
+        new CustomEvent('frameShift', { detail: { index, direction: 'down' } })
+      );
+    };
+
+    shiftLeftHandler = () => {
+      const { index } = this;
+
+      this.dispatchEvent(
+        new CustomEvent('frameShift', { detail: { index, direction: 'left' } })
+      );
+    };
+
+    shiftRightHandler = () => {
+      const { index } = this;
+
+      this.dispatchEvent(
+        new CustomEvent('frameShift', { detail: { index, direction: 'right' } })
+      );
     };
 
     attributeChangedCallback(name, _, value) {

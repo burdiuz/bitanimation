@@ -160,7 +160,7 @@ class BitFrames {
     return this.drawBit(index, row, column);
   }
 
-  slideToTop(index) {
+  shiftUp(index) {
     const frame = this.frames[index];
     const row = new Array(this.width);
     row.fill(0);
@@ -171,7 +171,7 @@ class BitFrames {
     return this.render(index);
   }
 
-  slideToLeft(index) {
+  shiftLeft(index) {
     this.frames[index].forEach((row) => {
       row.shift();
       row.push(0);
@@ -180,7 +180,7 @@ class BitFrames {
     return this.render(index);
   }
 
-  slideToRight(index) {
+  shiftRight(index) {
     this.frames[index].forEach((row) => {
       row.pop();
       row.unshift(0);
@@ -189,7 +189,7 @@ class BitFrames {
     return this.render(index);
   }
 
-  slideToBottom(index) {
+  shiftDown(index) {
     const frame = this.frames[index];
     const row = new Array(this.width);
     row.fill(0);
@@ -200,19 +200,19 @@ class BitFrames {
     return this.render(index);
   }
 
-  slideByEvent({ detail: { index, direction } }) {
+  shiftByEvent({ detail: { index, direction } }) {
     switch (direction) {
-      case 'top':
-        this.slideTop(index);
+      case 'up':
+        this.shiftUp(index);
         break;
       case 'right':
-        this.slideToRight(index);
+        this.shiftRight(index);
         break;
-      case 'bottom':
-        this.slideToBottom(index);
+      case 'down':
+        this.shiftDown(index);
         break;
       case 'left':
-        this.slideToLeft(index);
+        this.shiftLeft(index);
         break;
     }
 

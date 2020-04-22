@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Bit Animation - Player</title>
+    <script src="../libs/multibyte-stream.umd.js"></script>
+
+    <script src="../frames.js"></script>
+
+    <script src="../bit/frame.js"></script>
+    <script src="../bit/player.js"></script>
+    <script src="../tool-button.js"></script>
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 14px;
+      }
+
+      .container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: stretch;
+      }
+
+      bit-player {
+        flex: 1;
+      }
+
+      button {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <bit-player></bit-player>
+    </div>
+    <button
+      is="tool-button"
+      slot="tools"
+      size="30"
+      icon="../icons/edit_timeline_icon.png"
+      title="Open Editor to customize Animation"
+      onclick="navigateToEditor()"
+    ></button>
+  </body>
+  <script>
+    const nextTick = (callback) => {
+      let promise = null;
+      let lastArgs;
+
+      return (...args) => {
+        lastArgs = args;
+
+        if (promise) {
+          return;
+        }
+
+        promise = Promise.resolve().then(() => {
+          promise = null;
+
+          callback(...lastArgs);
+        });
+      };
+    };
+
+    const navigateToEditor = () => {
+      const state = new URLSearchParams(window.location.search).get('a');
+
+      window.location.href = `/?a=${encodeURIComponent(state)}`;
+    };
+
+    let currentStateStr = '';
+
+    const stateSchema = (() => {
+      const {
+        Schema,
+        types: { ObjectType, ArrayType, IntType },
+      } = MultibyteStream;
+
+      return new Schema(
+        ObjectType.getInstance({
+          // force version to be first value in stream
+          $version: new IntType(false, 4),
+          width: new IntType(false, 6),
+          height: new IntType(false, 6),
+          color: new IntType(false),
+          backgroundColor: new IntType(false),
+          speed: new IntType(false, 10),
+          sourceList: new ArrayType(
+            new ArrayType(new ArrayType(new IntType(false, 1)))
+          ),
+        })
+      );
+    })();
+
+    const loadStateFromURL = () => {
+      const state = new URLSearchParams(window.location.search).get('a');
+
+      if (!state || state === currentStateStr) {
+        return;
+      }
+
+      currentStateStr = state;
+
+      const {
+        width,
+        height,
+        color,
+        backgroundColor,
+        speed,
+        sourceList,
+      } = stateSchema.loadBase64To(state);
+
+      frames.setFrames([]);
+      frames.setSize(width, height);
+      frames.setColors(color, backgroundColor);
+      frames.setFrames(sourceList);
+      document.querySelector('bit-player').speed = speed;
+    };
+
+    const renderFrames = nextTick(() => {
+      console.log(frames.getAll());
+      document.querySelector('bit-player').sources = frames.getRenderedAll();
+    });
+
+    const frames = new BitFrames(
+      () => loadStateFromURL(),
+      renderFrames,
+      renderFrames
+    );
+  </script>
+</html>

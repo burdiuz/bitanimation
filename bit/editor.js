@@ -92,22 +92,23 @@ frame-tools {
     this.containerNode.appendChild(toolsNode);
 
     frameNode.addEventListener('bitSwitch', this.bitSwitchHandle);
-    toolsNode.addEventListener('bitSlide', this.bitSlideHandle);
+    toolsNode.addEventListener('frameShift', this.frameShiftHandle);
     toolsNode.addEventListener(
       'insertEmptyBefore',
       this.insertEmptyBeforeHandle
     );
+
     toolsNode.addEventListener('insertEmptyAfter', this.insertEmptyAfterHandle);
     toolsNode.addEventListener('copyBefore', this.copyBeforeHandle);
     toolsNode.addEventListener('copyAfter', this.copyAfterHandle);
-    toolsNode.addEventListener('remove', this.removeHandle);
+    toolsNode.addEventListener('remove', this.frameRemoveHandle);
 
     return [toolsNode, frameNode];
   }
 
   destroyChild(toolsNode, frameNode) {
     frameNode.removeEventListener('bitSwitch', this.bitSwitchHandle);
-    toolsNode.removeEventListener('bitSlide', this.bitSlideHandle);
+    toolsNode.removeEventListener('frameShift', this.frameShiftHandle);
     toolsNode.removeEventListener(
       'insertEmptyBefore',
       this.insertEmptyBeforeHandle
@@ -118,7 +119,7 @@ frame-tools {
     );
     toolsNode.removeEventListener('copyBefore', this.copyBeforeHandle);
     toolsNode.removeEventListener('copyAfter', this.copyAfterHandle);
-    toolsNode.removeEventListener('remove', this.removeHandle);
+    toolsNode.removeEventListener('remove', this.frameRemoveHandle);
 
     toolsNode.remove();
   }
@@ -176,8 +177,10 @@ frame-tools {
     event.target.src = this.frames.drawBitByEvent(event);
   };
 
-  bitSlideHandle = (event) => {
-    event.target.src = this.frames.slideByEvent(event);
+  frameShiftHandle = (event) => {
+    event.target.querySelector(
+      'bit-frame-editor'
+    ).src = this.frames.shiftByEvent(event);
   };
 
   insertEmptyBeforeHandle = ({ detail: { index } }) => {
@@ -200,8 +203,13 @@ frame-tools {
     this.validateChildren();
   };
 
-  removeHandle = ({ detail: { index } }) => {
+  frameRemoveHandle = ({ detail: { index } }) => {
     this.frames.removeAt(index);
+
+    if(!this.frames.length()) {
+      frames.insertNewFirst();
+    }
+
     this.validateChildren();
   };
 }
