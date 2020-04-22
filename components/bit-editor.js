@@ -227,7 +227,7 @@ export class BitEditorElement extends HTMLElement {
     this.frames.removeAt(index);
 
     if (!this.frames.length()) {
-      frames.insertNewFirst();
+      this.frames.insertNewFirst();
     }
 
     this.validateChildren();
