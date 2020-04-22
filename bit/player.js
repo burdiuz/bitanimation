@@ -33,6 +33,7 @@
     }
 
     set sources(value) {
+      console.log('SET SOURCES');
       this._sources = value;
       this.validateImages();
     }
@@ -51,6 +52,7 @@
     }
 
     validateImages() {
+      console.log('VALIDATE');
       const { images } = this;
 
       this._sources.forEach((src, index) => {
