@@ -1,5 +1,4 @@
-(() => {
-  const STYLE = `
+const STYLE = `
     :host {
       position: fixed;
       top: 0;
@@ -47,12 +46,14 @@
       border-top: solid #eeeeee 1px;
     }`;
 
-  class ModalElement extends HTMLElement {
-    constructor() {
-      super();
+export const COMPONENT_NAME = 'bit-modal';
 
-      this.root = this.attachShadow({ mode: 'closed' });
-      this.root.innerHTML = `<style>
+export class ModalElement extends HTMLElement {
+  constructor() {
+    super();
+
+    this.root = this.attachShadow({ mode: 'closed' });
+    this.root.innerHTML = `<style>
             ${STYLE}
           </style>
           <div class="modal">
@@ -66,26 +67,25 @@
               <slot name="footer"></slot>
             </div>
           </div>`;
-    }
-
-    close() {
-      this.remove();
-    }
-
-    connectedCallback() {
-      this.root
-        .querySelector('.modal')
-        .addEventListener('click', this.modalClickHandle);
-
-      this.addEventListener('click', this.backdropClickHandle);
-    }
-
-    modalClickHandle = (event) => {
-      event.stopPropagation();
-    };
-
-    backdropClickHandle = () => this.close();
   }
 
-  window.customElements.define('bit-modal', ModalElement);
-})();
+  close() {
+    this.remove();
+  }
+
+  connectedCallback() {
+    this.root
+      .querySelector('.modal')
+      .addEventListener('click', this.modalClickHandle);
+
+    this.addEventListener('click', this.backdropClickHandle);
+  }
+
+  modalClickHandle = (event) => {
+    event.stopPropagation();
+  };
+
+  backdropClickHandle = () => this.close();
+}
+
+window.customElements.define(COMPONENT_NAME, ModalElement);

@@ -1,5 +1,4 @@
-(() => {
-  const STYLE = `
+const STYLE = `
 :host, .grid {
   width: 100vw;
   height: 100vh;
@@ -50,16 +49,18 @@
 }
 `;
 
-  class PageLayoutElement extends HTMLElement {
-    static get observedAttributes() {
-      return ['type'];
-    }
+export const COMPONENT_NAME = 'page-layout';
 
-    constructor() {
-      super();
+export class PageLayoutElement extends HTMLElement {
+  static get observedAttributes() {
+    return ['type'];
+  }
 
-      this.root = this.attachShadow({ mode: 'closed' });
-      this.root.innerHTML = `<style>
+  constructor() {
+    super();
+
+    this.root = this.attachShadow({ mode: 'closed' });
+    this.root.innerHTML = `<style>
       ${STYLE}
     </style>
     <div class="grid normal">
@@ -69,16 +70,13 @@
       <slot name="player"></slot>
       <slot name="editor"></slot>
     </div>`;
-    }
-
-    attributeChangedCallback(name, _, value) {
-      switch (name) {
-        case 'type':
-          this.root.querySelector('div.grid').className = `grid ${value}`;
-          break;
-      }
-    }
   }
 
-  window.customElements.define('page-layout', PageLayoutElement);
-})();
+  attributeChangedCallback(name, _, value) {
+    if (name === 'type') {
+      this.root.querySelector('div.grid').className = `grid ${value}`;
+    }
+  }
+}
+
+window.customElements.define(COMPONENT_NAME, PageLayoutElement);

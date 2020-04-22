@@ -1,3 +1,5 @@
+import { BitRenderer } from './bit-renderer.js';
+
 const generateEmptyFrame = (width, height) => {
   const row = new Array(width);
   row.fill(0);
@@ -11,7 +13,7 @@ const copyFrameAt = (frames, index) => frames[index].map((row) => [...row]);
 
 const colorToHTML = (value) => `#${value.toString(16).padStart(6, '0')}`;
 
-class BitFrames {
+export class BitFrames {
   constructor(
     initCallback = () => null,
     frameChangeCallback = () => null,
@@ -24,13 +26,10 @@ class BitFrames {
     this.frameChangeCallback = frameChangeCallback;
     this.timelineChangeCallback = timelineChangeCallback;
 
-    (async () => {
-      const { BitRenderer } = await import('./renderer.js');
-      this.renderer = new BitRenderer();
-      this.renderer.setSize(this.width, this.height);
+    this.renderer = new BitRenderer();
+    this.renderer.setSize(this.width, this.height);
 
-      initCallback(this);
-    })();
+    initCallback(this);
   }
 
   setSize(width, height) {

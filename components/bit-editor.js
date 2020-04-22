@@ -1,14 +1,18 @@
-class BitEditorElement extends HTMLElement {
-  static get observedAttributes() {
-    return ['size', 'icon'];
-  }
+import {
+  COMPONENT_NAME as FRAMEEDITOR_COMPONENT_NAME,
+  BIT_SWITCH_EVENT,
+} from './bit-frame-editor.js';
+import {
+  COMPONENT_NAME as FRAMETOOLS_COMPONENT_NAME,
+  FRAME_SHIFT_EVENT,
+  INSERT_EMPTY_BEFORE_EVENT,
+  INSERT_EMPTY_AFTER_EVENT,
+  COPY_BEFORE_EVENT,
+  COPY_AFTER_EVENT,
+  REMOVE_EVENT,
+} from './frame-tools.js';
 
-  constructor() {
-    super();
-
-    this.root = this.attachShadow({ mode: 'closed' });
-    const style = document.createElement('style');
-    style.textContent = `
+const STYLE = `
 :host {
   overflow-x: auto;
   overflow-y: hidden;
@@ -36,6 +40,20 @@ frame-tools {
 }
 `;
 
+export const COMPONENT_NAME = 'bit-editor';
+
+export class BitEditorElement extends HTMLElement {
+  static get observedAttributes() {
+    return ['size', 'icon'];
+  }
+
+  constructor() {
+    super();
+
+    this.root = this.attachShadow({ mode: 'closed' });
+    const style = document.createElement('style');
+    style.textContent = STYLE;
+
     this.containerNode = document.createElement('div');
     this.spacerNode = document.createElement('div');
     this.containerNode.className = 'frames';
@@ -59,13 +77,15 @@ frame-tools {
   }
 
   validateChildren() {
-    const children = this.containerNode.querySelectorAll('frame-tools');
+    const children = this.containerNode.querySelectorAll(
+      FRAMETOOLS_COMPONENT_NAME
+    );
     const length = Math.max(this._frames.length(), children.length);
 
     for (let index = 0; index < length; index++) {
       if (children.length > index) {
         const toolsNode = children[index];
-        const frameNode = toolsNode.querySelector('bit-frame-editor');
+        const frameNode = toolsNode.querySelector(FRAMEEDITOR_COMPONENT_NAME);
 
         if (this._frames.length() > index) {
           this.configureTools(toolsNode, index);
@@ -85,41 +105,41 @@ frame-tools {
   }
 
   createChild() {
-    const frameNode = document.createElement('bit-frame-editor');
-    const toolsNode = document.createElement('frame-tools');
+    const frameNode = document.createElement(FRAMEEDITOR_COMPONENT_NAME);
+    const toolsNode = document.createElement(FRAMETOOLS_COMPONENT_NAME);
 
     toolsNode.appendChild(frameNode);
     this.containerNode.appendChild(toolsNode);
 
-    frameNode.addEventListener('bitSwitch', this.bitSwitchHandle);
-    toolsNode.addEventListener('frameShift', this.frameShiftHandle);
+    frameNode.addEventListener(BIT_SWITCH_EVENT, this.bitSwitchHandle);
+    toolsNode.addEventListener(FRAME_SHIFT_EVENT, this.frameShiftHandle);
     toolsNode.addEventListener(
-      'insertEmptyBefore',
+      INSERT_EMPTY_BEFORE_EVENT,
       this.insertEmptyBeforeHandle
     );
 
-    toolsNode.addEventListener('insertEmptyAfter', this.insertEmptyAfterHandle);
-    toolsNode.addEventListener('copyBefore', this.copyBeforeHandle);
-    toolsNode.addEventListener('copyAfter', this.copyAfterHandle);
-    toolsNode.addEventListener('remove', this.frameRemoveHandle);
+    toolsNode.addEventListener(INSERT_EMPTY_AFTER_EVENT, this.insertEmptyAfterHandle);
+    toolsNode.addEventListener(COPY_BEFORE_EVENT, this.copyBeforeHandle);
+    toolsNode.addEventListener(COPY_AFTER_EVENT, this.copyAfterHandle);
+    toolsNode.addEventListener(REMOVE_EVENT, this.frameRemoveHandle);
 
     return [toolsNode, frameNode];
   }
 
   destroyChild(toolsNode, frameNode) {
-    frameNode.removeEventListener('bitSwitch', this.bitSwitchHandle);
-    toolsNode.removeEventListener('frameShift', this.frameShiftHandle);
+    frameNode.removeEventListener(BIT_SWITCH_EVENT, this.bitSwitchHandle);
+    toolsNode.removeEventListener(FRAME_SHIFT_EVENT, this.frameShiftHandle);
     toolsNode.removeEventListener(
-      'insertEmptyBefore',
+      INSERT_EMPTY_BEFORE_EVENT,
       this.insertEmptyBeforeHandle
     );
     toolsNode.removeEventListener(
-      'insertEmptyAfter',
+      INSERT_EMPTY_AFTER_EVENT,
       this.insertEmptyAfterHandle
     );
-    toolsNode.removeEventListener('copyBefore', this.copyBeforeHandle);
-    toolsNode.removeEventListener('copyAfter', this.copyAfterHandle);
-    toolsNode.removeEventListener('remove', this.frameRemoveHandle);
+    toolsNode.removeEventListener(COPY_BEFORE_EVENT, this.copyBeforeHandle);
+    toolsNode.removeEventListener(COPY_AFTER_EVENT, this.copyAfterHandle);
+    toolsNode.removeEventListener(REMOVE_EVENT, this.frameRemoveHandle);
 
     toolsNode.remove();
   }
@@ -179,7 +199,7 @@ frame-tools {
 
   frameShiftHandle = (event) => {
     event.target.querySelector(
-      'bit-frame-editor'
+      FRAMEEDITOR_COMPONENT_NAME
     ).src = this.frames.shiftByEvent(event);
   };
 
@@ -206,7 +226,7 @@ frame-tools {
   frameRemoveHandle = ({ detail: { index } }) => {
     this.frames.removeAt(index);
 
-    if(!this.frames.length()) {
+    if (!this.frames.length()) {
       frames.insertNewFirst();
     }
 
@@ -214,4 +234,4 @@ frame-tools {
   };
 }
 
-window.customElements.define('bit-editor', BitEditorElement);
+window.customElements.define(COMPONENT_NAME, BitEditorElement);
